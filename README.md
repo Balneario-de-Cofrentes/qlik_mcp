@@ -44,6 +44,82 @@ mix run --no-halt
 
 The MCP server will be available at `http://localhost:4100/mcp`.
 
+### Auto-start on macOS (launchd)
+
+For convenience, you can configure the MCP server to start automatically at login using macOS launchd.
+
+1. Create a startup script at `~/.local/bin/qlik-mcp-start`:
+
+```bash
+#!/bin/bash
+export HOME="$HOME"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+# If using asdf for Elixir version management:
+# source /opt/homebrew/opt/asdf/libexec/asdf.sh
+
+# Set Qlik credentials
+export QLIK_API_KEY="your-api-key"
+export QLIK_TENANT_URL="https://your-tenant.region.qlikcloud.com"
+
+cd /path/to/qlik-cloud-mcp
+exec mix run --no-halt
+```
+
+Make it executable:
+```bash
+chmod +x ~/.local/bin/qlik-mcp-start
+```
+
+2. Create a launchd plist at `~/Library/LaunchAgents/com.qlik-mcp.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.org/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.qlik-mcp</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/YOUR_USERNAME/.local/bin/qlik-mcp-start</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/YOUR_USERNAME/.local/log/qlik-mcp.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/YOUR_USERNAME/.local/log/qlik-mcp.error.log</string>
+</dict>
+</plist>
+```
+
+3. Create log directory and load the service:
+
+```bash
+mkdir -p ~/.local/log
+launchctl load ~/Library/LaunchAgents/com.qlik-mcp.plist
+```
+
+4. Manage the service:
+
+```bash
+# Check status
+launchctl list | grep qlik
+
+# Stop
+launchctl unload ~/Library/LaunchAgents/com.qlik-mcp.plist
+
+# Start
+launchctl load ~/Library/LaunchAgents/com.qlik-mcp.plist
+
+# View logs
+tail -f ~/.local/log/qlik-mcp.log
+```
+
 ### As a dependency
 
 Add to your `mix.exs`:
@@ -78,7 +154,24 @@ config :qlik_mcp,
   max_rows: 10_000
 ```
 
-## Claude Desktop Integration
+## Claude Integration
+
+### Claude Code (CLI)
+
+Add to your `~/.claude.json` in the `mcpServers` section:
+
+```json
+{
+  "mcpServers": {
+    "qlik": {
+      "type": "http",
+      "url": "http://localhost:4100/mcp"
+    }
+  }
+}
+```
+
+### Claude Desktop
 
 Add to your `claude_desktop_config.json`:
 
