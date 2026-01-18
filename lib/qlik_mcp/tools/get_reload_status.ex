@@ -19,7 +19,7 @@ defmodule QlikMCP.Tools.GetReloadStatus do
   def description, do: "Get the status of a Qlik app reload operation"
 
   @impl true
-  def execute(%{"reload_id" => reload_id}, frame) do
+  def execute(%{reload_id: reload_id}, frame) do
     case Helpers.get_config(frame) do
       {:ok, config} ->
         case Reloads.get(reload_id, config: config) do

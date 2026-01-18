@@ -23,28 +23,28 @@ defmodule QlikMCP.Tools.ListCharts do
   def description, do: "List all charts and visualizations on a sheet"
 
   @impl true
-  def execute(%{"app_id" => app_id, "sheet_id" => sheet_id}, frame) do
-    with {:ok, config} <- Helpers.get_config(frame),
-         {:ok, session} <- Helpers.connect_qix(app_id, config) do
-      result =
-        case App.list_objects(session, sheet_id) do
-          {:ok, objects} ->
-            formatted = format_objects(objects, sheet_id)
-            {:reply, Helpers.success_response(formatted), frame}
+  def execute(%{app_id: app_id, sheet_id: sheet_id}, frame) do
+    Helpers.safe_execute("list_charts", frame, fn ->
+      case Helpers.get_config(frame) do
+        {:ok, config} ->
+          Helpers.execute_qix_operation(app_id, config, "list_charts", frame, fn session ->
+            case App.list_objects(session, sheet_id, timeout: Helpers.qix_timeout()) do
+              {:ok, objects} ->
+                formatted = format_objects(objects, sheet_id)
+                {:reply, Helpers.success_response(formatted), frame}
 
-          {:error, error} ->
-            {:reply, Helpers.error_response("Failed to list objects: #{inspect(error)}"), frame}
-        end
+              {:error, error} ->
+                {:reply, Helpers.error_response("Failed to list objects: #{inspect(error)}"), frame}
+            end
+          end)
 
-      Helpers.disconnect_qix(session)
-      result
-    else
-      {:error, message} when is_binary(message) ->
-        {:reply, Helpers.error_response(message), frame}
+        {:error, message} when is_binary(message) ->
+          {:reply, Helpers.error_response(message), frame}
 
-      {:error, error} ->
-        {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
-    end
+        {:error, error} ->
+          {:reply, Helpers.error_response("Config error: #{inspect(error)}"), frame}
+      end
+    end)
   end
 
   defp format_objects(objects, sheet_id) do

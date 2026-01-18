@@ -16,7 +16,7 @@ defmodule QlikMCP.Tools.GetApp do
   def description, do: "Get detailed information about a specific Qlik app"
 
   @impl true
-  def execute(%{"app_id" => app_id}, frame) do
+  def execute(%{app_id: app_id}, frame) do
     case Helpers.get_config(frame) do
       {:ok, config} ->
         case Apps.get(app_id, config: config) do

@@ -24,8 +24,8 @@ defmodule QlikMCP.Tools.ListSpaces do
       {:ok, config} ->
         opts =
           []
-          |> Helpers.maybe_add_opt(params, "limit", :limit)
-          |> Helpers.maybe_add_opt(params, "type", :type)
+          |> Helpers.maybe_add_opt(params, :limit, :limit)
+          |> Helpers.maybe_add_opt(params, :type, :type)
 
         case Spaces.list(Keyword.put(opts, :config, config)) do
           {:ok, %{"data" => spaces}} ->

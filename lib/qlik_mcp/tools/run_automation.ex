@@ -18,7 +18,7 @@ defmodule QlikMCP.Tools.RunAutomation do
   def description, do: "Trigger a Qlik automation"
 
   @impl true
-  def execute(%{"automation_id" => automation_id}, frame) do
+  def execute(%{automation_id: automation_id}, frame) do
     case Helpers.get_config(frame) do
       {:ok, config} ->
         case Automations.run(automation_id, config: config) do

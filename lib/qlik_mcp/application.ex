@@ -14,7 +14,22 @@ defmodule QlikMCP.Application do
       Anubis.Server.Registry,
 
       # HTTP endpoint for MCP
-      {Plug.Cowboy, scheme: :http, plug: QlikMCP.Router, options: [port: port()]},
+      # SSE connections need long idle_timeout to avoid premature disconnection
+      {Plug.Cowboy,
+       scheme: :http,
+       plug: QlikMCP.Router,
+       options: [
+         port: port(),
+         protocol_options: [
+           # 30 minutes idle timeout for SSE streams
+           idle_timeout: 1_800_000,
+           # 2 minutes max for tool call requests (POST)
+           # SSE connections (GET) are kept alive by inactivity_timeout
+           request_timeout: 120_000,
+           # CRITICAL: inactivity_timeout for streaming responses (chunked/SSE)
+           inactivity_timeout: 1_800_000
+         ]
+       ]},
 
       # The MCP Server
       {QlikMCP.Server, transport: :streamable_http}

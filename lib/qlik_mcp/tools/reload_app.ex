@@ -21,8 +21,8 @@ defmodule QlikMCP.Tools.ReloadApp do
 
   @impl true
   def execute(params, frame) do
-    %{"app_id" => app_id} = params
-    partial = params["partial"] || false
+    %{app_id: app_id} = params
+    partial = params[:partial] || false
 
     case Helpers.get_config(frame) do
       {:ok, config} ->

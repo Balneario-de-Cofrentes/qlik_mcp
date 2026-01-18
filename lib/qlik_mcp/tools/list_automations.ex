@@ -23,7 +23,7 @@ defmodule QlikMCP.Tools.ListAutomations do
       {:ok, config} ->
         opts =
           []
-          |> Helpers.maybe_add_opt(params, "limit", :limit)
+          |> Helpers.maybe_add_opt(params, :limit, :limit)
 
         case Automations.list(Keyword.put(opts, :config, config)) do
           {:ok, %{"data" => automations}} ->

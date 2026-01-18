@@ -19,28 +19,28 @@ defmodule QlikMCP.Tools.ListSheets do
   def description, do: "List all sheets in a Qlik app"
 
   @impl true
-  def execute(%{"app_id" => app_id}, frame) do
-    with {:ok, config} <- Helpers.get_config(frame),
-         {:ok, session} <- Helpers.connect_qix(app_id, config) do
-      result =
-        case App.list_sheets(session) do
-          {:ok, sheets} ->
-            formatted = format_sheets(sheets)
-            {:reply, Helpers.success_response(formatted), frame}
+  def execute(%{app_id: app_id}, frame) do
+    Helpers.safe_execute("list_sheets", frame, fn ->
+      case Helpers.get_config(frame) do
+      {:ok, config} ->
+        Helpers.execute_qix_operation(app_id, config, "list_sheets", frame, fn session ->
+          case App.list_sheets(session, timeout: Helpers.qix_timeout()) do
+            {:ok, sheets} ->
+              formatted = format_sheets(sheets)
+              {:reply, Helpers.success_response(formatted), frame}
 
-          {:error, error} ->
-            {:reply, Helpers.error_response("Failed to list sheets: #{inspect(error)}"), frame}
-        end
+            {:error, error} ->
+              {:reply, Helpers.error_response("Failed to list sheets: #{inspect(error)}"), frame}
+          end
+        end)
 
-      Helpers.disconnect_qix(session)
-      result
-    else
-      {:error, message} when is_binary(message) ->
-        {:reply, Helpers.error_response(message), frame}
+        {:error, message} when is_binary(message) ->
+          {:reply, Helpers.error_response(message), frame}
 
-      {:error, error} ->
-        {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
-    end
+        {:error, error} ->
+          {:reply, Helpers.error_response("Config error: #{inspect(error)}"), frame}
+      end
+    end)
   end
 
   defp format_sheets(sheets) do

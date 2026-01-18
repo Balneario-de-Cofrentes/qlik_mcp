@@ -24,31 +24,43 @@ defmodule QlikMCP.Tools.EvaluateExpression do
   def description, do: "Evaluate a Qlik expression (e.g., 'Sum(Sales)', 'Count(Customers)')"
 
   @impl true
-  def execute(%{"app_id" => app_id, "expression" => expression}, frame) do
-    with {:ok, config} <- Helpers.get_config(frame),
-         {:ok, session} <- Helpers.connect_qix(app_id, config) do
-      result =
-        case App.evaluate(session, expression) do
-          {:ok, value} ->
-            formatted = """
-            Expression: #{expression}
-            Result: #{value}
-            """
+  def execute(%{app_id: app_id, expression: expression}, frame) do
+    # Wrap entire execution in safe_execute to catch ALL exceptions
+    Helpers.safe_execute("evaluate_expression", frame, fn ->
+      case Helpers.get_config(frame) do
+      {:ok, config} ->
+        # Wrap ENTIRE operation including connection in timeout
+        Helpers.with_qix_timeout("evaluate_expression_with_connection", fn ->
+          case Helpers.connect_qix(app_id, config) do
+            {:ok, session} ->
+              result =
+                case App.evaluate(session, expression, timeout: Helpers.qix_timeout()) do
+                  {:ok, value} ->
+                    formatted = """
+                    Expression: #{expression}
+                    Result: #{value}
+                    """
 
-            {:reply, Helpers.success_response(formatted), frame}
+                    {:reply, Helpers.success_response(formatted), frame}
 
-          {:error, error} ->
-            {:reply, Helpers.error_response("Failed to evaluate: #{inspect(error)}"), frame}
-        end
+                  {:error, error} ->
+                    {:reply, Helpers.error_response("Failed to evaluate: #{inspect(error)}"), frame}
+                end
 
-      Helpers.disconnect_qix(session)
-      result
-    else
-      {:error, message} when is_binary(message) ->
-        {:reply, Helpers.error_response(message), frame}
+              Helpers.disconnect_qix(session)
+              result
 
-      {:error, error} ->
-        {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
-    end
+            {:error, error} ->
+              {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
+          end
+        end)
+
+        {:error, message} when is_binary(message) ->
+          {:reply, Helpers.error_response(message), frame}
+
+        {:error, error} ->
+          {:reply, Helpers.error_response("Config error: #{inspect(error)}"), frame}
+      end
+    end)
   end
 end

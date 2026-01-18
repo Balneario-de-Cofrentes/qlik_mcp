@@ -35,7 +35,7 @@ defmodule QlikMCP.MixProject do
       {:anubis_mcp, "~> 0.17.0"},
 
       # Qlik Cloud client
-      {:qlik_elixir, "~> 0.3.4"},
+      {:qlik_elixir, "~> 0.3.5"},
 
       # HTTP Server for MCP transport
       {:plug_cowboy, "~> 2.7"},

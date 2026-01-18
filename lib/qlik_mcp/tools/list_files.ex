@@ -24,8 +24,8 @@ defmodule QlikMCP.Tools.ListFiles do
       {:ok, config} ->
         opts =
           []
-          |> Helpers.maybe_add_opt(params, "limit", :limit)
-          |> Helpers.maybe_add_opt(params, "space_id", :spaceId)
+          |> Helpers.maybe_add_opt(params, :limit, :limit)
+          |> Helpers.maybe_add_opt(params, :space_id, :spaceId)
 
         case DataFiles.list(Keyword.put(opts, :config, config)) do
           {:ok, %{"data" => files}} ->

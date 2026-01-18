@@ -134,6 +134,17 @@ end
 
 ## Configuration
 
+### Timeout Settings
+
+The server is configured with robust timeout protection to prevent hanging:
+
+- **Request Timeout**: 120 seconds (2 minutes) - Maximum time for tool execution
+- **Idle Timeout**: 1800 seconds (30 minutes) - SSE connection keepalive
+- **Inactivity Timeout**: 1800 seconds (30 minutes) - Streaming response timeout
+- **QIX Operation Timeout**: 15 seconds - Individual database query timeout
+
+These are configured in `lib/qlik_mcp/application.ex` and `lib/qlik_mcp/tools/helpers.ex`.
+
 ### Environment Variables
 
 | Variable | Required | Description |
@@ -276,6 +287,45 @@ qlik-cloud-mcp/
 │   │       └── spaces.ex
 └── mix.exs
 ```
+
+## Troubleshooting
+
+### Server Logs
+
+When running via launchd, logs are written to `~/.local/log/qlik-mcp.log`.
+
+Check for errors:
+```bash
+tail -f ~/.local/log/qlik-mcp.log | grep -i error
+```
+
+### Common Issues
+
+**Tool hangs or times out:**
+- Check QIX timeout (15 seconds default for individual queries)
+- Check request timeout (120 seconds default for complete tool execution)
+- Verify Qlik Cloud API key is valid: `echo $QLIK_API_KEY`
+- Check network connectivity to Qlik Cloud
+
+**Server crashes:**
+- Check logs for stack traces in `~/.local/log/qlik-mcp.log`
+- Verify all environment variables are set correctly
+- All tools have comprehensive exception handling via `safe_execute`
+- If crashes persist, open an issue with logs
+
+**Connection issues:**
+- Verify server is running: `curl http://localhost:4100/health`
+- Check launchd status: `launchctl list | grep qlik-mcp`
+- Restart server: `launchctl unload ~/Library/LaunchAgents/com.qlik-mcp.plist && launchctl load ~/Library/LaunchAgents/com.qlik-mcp.plist`
+
+### Reliability & Robustness
+
+The server includes comprehensive timeout and error handling:
+
+1. **HTTP Request Timeout** - Explicit `request_timeout: 120_000` ms prevents indefinite hangs
+2. **QIX Operation Timeout** - 15-second timeout wrapper for all database queries
+3. **Exception Handling** - All tools wrapped with `safe_execute` to catch and gracefully handle crashes
+4. **Data Structure Handling** - Proper extraction of Qlik's complex tuple/map data structures
 
 ## Dependencies
 

@@ -26,41 +26,62 @@ defmodule QlikMCP.Tools.GetChartData do
 
   @impl true
   def execute(params, frame) do
-    %{"app_id" => app_id, "object_id" => object_id} = params
-    max_rows = params["max_rows"] || Helpers.get_max_rows(frame)
+    # Wrap entire execution in safe_execute to catch ALL exceptions
+    Helpers.safe_execute("get_chart_data", frame, fn ->
+      %{app_id: app_id, object_id: object_id} = params
+      max_rows = params[:max_rows] || Helpers.get_max_rows(frame)
 
-    with {:ok, config} <- Helpers.get_config(frame),
-         {:ok, session} <- Helpers.connect_qix(app_id, config) do
-      result =
-        case App.get_hypercube_data(session, object_id, max_rows: max_rows) do
-          {:ok, data} ->
-            formatted = format_data(data)
-            {:reply, Helpers.success_response(formatted), frame}
+      case Helpers.get_config(frame) do
+      {:ok, config} ->
+        # Wrap ENTIRE operation including connection in timeout
+        Helpers.with_qix_timeout("get_chart_data_with_connection", fn ->
+          case Helpers.connect_qix(app_id, config) do
+            {:ok, session} ->
+              result =
+                case App.get_hypercube_data(session, object_id,
+                      max_rows: max_rows,
+                      timeout: Helpers.qix_timeout()) do
+                  {:ok, data} ->
+                    formatted = format_data(data)
+                    {:reply, Helpers.success_response(formatted), frame}
 
-          {:error, error} ->
-            {:reply, Helpers.error_response("Failed to get data: #{inspect(error)}"), frame}
-        end
+                  {:error, error} ->
+                    {:reply, Helpers.error_response("Failed to get data: #{inspect(error)}"), frame}
+                end
 
-      Helpers.disconnect_qix(session)
-      result
-    else
-      {:error, message} when is_binary(message) ->
-        {:reply, Helpers.error_response(message), frame}
+              Helpers.disconnect_qix(session)
+              result
 
-      {:error, error} ->
-        {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
-    end
+            {:error, error} ->
+              {:reply, Helpers.error_response("Failed to connect: #{inspect(error)}"), frame}
+          end
+        end)
+
+        {:error, message} when is_binary(message) ->
+          {:reply, Helpers.error_response(message), frame}
+
+        {:error, error} ->
+          {:reply, Helpers.error_response("Config error: #{inspect(error)}"), frame}
+      end
+    end)
   end
 
   defp format_data(data) do
     headers = get_field(data, :headers, [])
-    rows = get_field(data, :rows, [])
+    raw_rows = get_field(data, :rows, [])
 
-    if Enum.empty?(headers) and Enum.empty?(rows) do
+    if Enum.empty?(headers) or Enum.empty?(raw_rows) do
       "No data found in this visualization."
     else
+      # Extract text arrays from row maps
+      # Each row is %{values: [...], text: [...]}, we want just the :text array
+      rows = Enum.map(raw_rows, fn row ->
+        # Prefer formatted text, fall back to raw values
+        get_field(row, :text, []) || get_field(row, :values, [])
+      end)
+
       table = Helpers.format_table(headers, rows)
-      table <> format_meta(data, rows)
+      table <> format_meta(data, raw_rows)
     end
   end
 
