@@ -1,5 +1,10 @@
 # QlikMCP
 
+[![Hex.pm](https://img.shields.io/hexpm/v/qlik_mcp.svg)](https://hex.pm/packages/qlik_mcp)
+[![Documentation](https://img.shields.io/badge/docs-hexdocs-blue.svg)](https://hexdocs.pm/qlik_mcp)
+[![License](https://img.shields.io/hexpm/l/qlik_mcp.svg)](https://github.com/Balneario-de-Cofrentes/qlik_mcp/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/hexpm/dt/qlik_mcp.svg)](https://hex.pm/packages/qlik_mcp)
+
 MCP (Model Context Protocol) server for Qlik Cloud, enabling AI assistants like Claude to interact with your Qlik analytics platform.
 
 ## Features
