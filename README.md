@@ -22,7 +22,7 @@ MCP (Model Context Protocol) server for Qlik Cloud, enabling AI assistants like 
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/dgilperez/qlik_mcp.git
+git clone https://github.com/Balneario-de-Cofrentes/qlik_mcp.git
 cd qlik_mcp
 ```
 
@@ -369,7 +369,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [HexDocs](https://hexdocs.pm/qlik_mcp)
 - [Hex.pm](https://hex.pm/packages/qlik_mcp)
-- [GitHub](https://github.com/dgilperez/qlik_mcp)
+- [GitHub](https://github.com/Balneario-de-Cofrentes/qlik_mcp)
 - [Qlik Developer Portal](https://qlik.dev/)
 
 ---

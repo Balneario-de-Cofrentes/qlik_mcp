@@ -1,8 +1,8 @@
 defmodule QlikMCP.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
-  @source_url "https://github.com/dgilperez/qlik_mcp"
+  @version "0.1.1"
+  @source_url "https://github.com/Balneario-de-Cofrentes/qlik_mcp"
 
   def project do
     [
