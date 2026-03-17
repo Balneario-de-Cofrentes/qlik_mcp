@@ -17,7 +17,7 @@ MCP (Model Context Protocol) server for Qlik Cloud, enabling AI assistants like 
 
 ## Prerequisites
 
-- Elixir 1.17+
+- Elixir 1.18+
 - A Qlik Cloud tenant with API access
 - A Qlik Cloud API key
 
@@ -132,7 +132,7 @@ Add to your `mix.exs`:
 ```elixir
 def deps do
   [
-    {:qlik_mcp, "~> 0.1.0"}
+    {:qlik_mcp, "~> 0.2.0"}
   ]
 end
 ```
@@ -174,7 +174,7 @@ config :qlik_mcp,
 
 ### Claude Code (CLI)
 
-Add to your `~/.claude.json` in the `mcpServers` section:
+Add to your MCP configuration (`~/.mcp/global-config.json` or project `.mcp.json`):
 
 ```json
 {
@@ -273,6 +273,7 @@ qlik-cloud-mcp/
 │   │   ├── server.ex            # MCP Server (Anubis)
 │   │   ├── config.ex            # Configuration
 │   │   ├── router.ex            # HTTP Router (Plug)
+│   │   ├── mcp_plug.ex          # MCP HTTP Transport (Plug)
 │   │   ├── tools/               # MCP Tool implementations
 │   │   │   ├── list_apps.ex
 │   │   │   ├── get_app.ex
@@ -290,6 +291,19 @@ qlik-cloud-mcp/
 │   │   └── resources/           # MCP Resource implementations
 │   │       ├── apps.ex
 │   │       └── spaces.ex
+├── config/
+│   ├── config.exs
+│   ├── dev.exs
+│   ├── prod.exs
+│   ├── runtime.exs
+│   └── test.exs
+├── test/
+│   ├── qlik_mcp_test.exs
+│   ├── qlik_mcp/
+│   │   ├── config_test.exs
+│   │   └── tools/
+│   │       └── helpers_test.exs
+│   └── test_helper.exs
 └── mix.exs
 ```
 
