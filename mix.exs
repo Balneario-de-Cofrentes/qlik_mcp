@@ -1,14 +1,14 @@
 defmodule QlikMCP.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.2.0"
   @source_url "https://github.com/Balneario-de-Cofrentes/qlik_mcp"
 
   def project do
     [
       app: :qlik_mcp,
       version: @version,
-      elixir: "~> 1.17",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -32,7 +32,7 @@ defmodule QlikMCP.MixProject do
   defp deps do
     [
       # MCP Protocol
-      {:anubis_mcp, "~> 0.17.0"},
+      {:anubis_mcp, "~> 1.0"},
 
       # Qlik Cloud client
       {:qlik_elixir, "~> 0.3.5"},

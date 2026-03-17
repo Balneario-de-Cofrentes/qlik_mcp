@@ -10,9 +10,6 @@ defmodule QlikMCP.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # MCP Server Registry (required by Anubis)
-      Anubis.Server.Registry,
-
       # HTTP endpoint for MCP
       # SSE connections need long idle_timeout to avoid premature disconnection
       {Plug.Cowboy,

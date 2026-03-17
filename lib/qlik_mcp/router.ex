@@ -11,9 +11,10 @@ defmodule QlikMCP.Router do
   plug(:match)
   plug(:dispatch)
 
-  # MCP endpoint - handles the streamable HTTP transport
+  # MCP endpoint - uses a runtime wrapper since the Anubis plug's init/1
+  # accesses persistent_term set during supervisor startup, not at compile time.
   forward("/mcp",
-    to: Anubis.Server.Transport.StreamableHTTP.Plug,
+    to: QlikMCP.MCPPlug,
     init_opts: [server: QlikMCP.Server]
   )
 
