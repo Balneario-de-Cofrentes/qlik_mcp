@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `QlikMCP.MCPPlug` runtime wrapper for compile-time/runtime initialization compatibility
+- Runtime plug wrapper for compile-time/runtime initialization compatibility
 
 ### Dependencies
 
