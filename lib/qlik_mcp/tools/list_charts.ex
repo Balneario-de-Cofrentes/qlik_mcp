@@ -38,11 +38,8 @@ defmodule QlikMCP.Tools.ListCharts do
             end
           end)
 
-        {:error, message} when is_binary(message) ->
+        {:error, message} ->
           {:reply, Helpers.error_response(message), frame}
-
-        {:error, error} ->
-          {:reply, Helpers.error_response("Config error: #{inspect(error)}"), frame}
       end
     end)
   end
