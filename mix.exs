@@ -92,18 +92,11 @@ defmodule QlikMCP.MixProject do
   def advisory_exceptions do
     [
       %{
-        id: "EEF-CVE-2026-43966",
-        package: "cowlib",
-        until: ~D[2026-12-05],
-        reason:
-          "Sin versión arreglada publicada; cowlib llega vía plug_cowboy/cowboy y gun (qlik_elixir) y el fallo está en cow_http_struct_hd:escape_string/2, que solo se usa al serializar cabeceras estructuradas que este repo no emite ni construye con datos de usuario."
-      },
-      %{
         id: "GHSA-w4f7-4cxr-rv3c",
         package: "gun",
         until: ~D[2026-12-05],
         reason:
-          "Sin versión arreglada publicada; mismo origen que EEF-CVE-2026-43966 (cow_http_struct_hd de cowlib), gun llega vía qlik_elixir y nunca envía cabeceras estructuradas construidas con datos de usuario."
+          "hex.pm no da ninguna versión de gun como arreglada (cowlib 2.22.0 arregla el origen, EEF-CVE-2026-43966, y ya está en el lock); gun llega vía qlik_elixir y nunca envía cabeceras estructuradas construidas con datos de usuario."
       }
     ]
   end
